@@ -8,6 +8,7 @@
 ## Move Token and Tenant configuration to OS Environment variables
 
 #!/bin/python
+import slackweb #Used to send notifications to slack on failure or success. Need to pip install slackweb.
 import subprocess #Used to fire up the postgresql backup via a shell
 import pycurl #Wrapper around curl to push files into the HCP
 import os
@@ -16,12 +17,13 @@ from datetime import datetime
 from fileinput import filename
 
 # Native HCP auth settings.
-#HCP_TOKEN = os.environ['AWS_ACCESS_KEY_ID']
 HCP_TOKEN = "Authorization: HCP usernamebase64:passwordmd5" #TODO: move this out to the os.environment
 HCP_TENANT_URL = "https://namespace.tenant.domain/rest/"
+SLACK_TOKEN = ""
 DEBUG = True #Set to True for addition logging on the console.
 
 def main():
+    slack = slackweb.Slack(url=SLACK_TOKEN)
     now = datetime.now()
     hostname = socket.gethostname()
     filename = now.strftime("%Y%m%d%H%M%S") + "-pgdump-" + hostname
@@ -40,11 +42,12 @@ def main():
     except ValueError:
         print "There was an error running pg_dumpall" #Barf if an error occurs running pg_dumpall       
     #Check to see if pg_dumpall actually created a file
+	slack.notify(text="There was an error running pg_dumpall")
     try:
         isfilename = os.path.isfile(filename)
     except ValueError:
         print "Something went wrong, I can't find the pgdump file in /tmp. I expected one!"
-        
+	slack.notify(text="I couldn't find the postgresql dump file!")
     """
     Upload the backup file to an HCP tenant/namespace using the native HTTPS protocol.
     """
@@ -70,5 +73,8 @@ def main():
             curl.close()
     except ValueError:
         print "Something went wrong contacting the HCP!"
+	slack.notify(text="Something went wrong backing up to the HCP!")
+    slack.notify(text="Service postgresql backup successful.")
+
 if __name__ == '__main__':
     main()
