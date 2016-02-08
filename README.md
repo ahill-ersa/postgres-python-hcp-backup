@@ -12,4 +12,13 @@ Please see the HCP administration guide for details.<br>
 ## Requirements
  * Python 2.7
  * Pycurl module
+ * slackweb python module "pip install slackweb"
  * /tmp needs enough space to dump a full database backup.
+
+## Slackweb setup
+
+Instructions available here: [Slack web hooks](https://github.com/satoshi03/slack-python-webhook)
+
+ 1. [Configure a slack webhook here](https://my.slack.com/services/new/incoming-webhook/) 
+ 1. Give the bot an appropriate name and point it at the required channel.
+ 1. Copy the webhooks URL into the python script.
