@@ -26,9 +26,9 @@ def main():
     slack = slackweb.Slack(url=SLACK_TOKEN)
     now = datetime.now()
     hostname = socket.gethostname()
-    filename = now.strftime("%Y%m%d%H%M%S") + "-pgdump-" + hostname
+    filename = now.strftime("%Y%m%d%H%M%S") + "-pgdump-" + hostname + ".xz"
     fullpath = "/tmp/" + filename
-    postgrescommand = "pg_dumpall >" + fullpath
+    postgrescommand = "pg_dumpall | pxz -1 >" + fullpath
 
     print "Backing up postgresql to HCP"
     try:
